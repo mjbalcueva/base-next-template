@@ -1,7 +1,8 @@
 import type { Metadata } from "next"
 import { Figtree, Geist, Geist_Mono, Nunito_Sans } from "next/font/google"
 
-import { cn } from "@/packages/utils"
+import { TooltipProvider } from "@/core/components/ui/tooltip"
+import { cn } from "@/core/lib/utils"
 
 import "@/core/style/globals.css"
 
@@ -33,7 +34,9 @@ export default function RootLayout({
         figtreeHeading.variable
       )}
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        <TooltipProvider>{children}</TooltipProvider>
+      </body>
     </html>
   )
 }
