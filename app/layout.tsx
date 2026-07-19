@@ -1,9 +1,9 @@
 import type { Metadata } from "next"
 import { Figtree, Geist, Geist_Mono, Nunito_Sans } from "next/font/google"
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/packages/utils"
 
-import "./globals.css"
+import "@/core/style/globals.css"
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] })
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] })

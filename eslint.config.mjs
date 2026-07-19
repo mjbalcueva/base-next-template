@@ -138,6 +138,53 @@ export default defineConfig([
     },
   },
 
+  // -- Import hierarchy enforcement (strict top-down, no intersections)
+  // core/ → itself only
+  {
+    files: ["core/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        { patterns: ["@/features/*", "@/packages/*", "@/services/*"] },
+      ],
+    },
+  },
+  // packages/ → core/ only
+  {
+    files: ["packages/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": ["error", { patterns: ["@/features/*", "@/services/*"] }],
+    },
+  },
+  // services/ → core/ only
+  {
+    files: ["services/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": ["error", { patterns: ["@/features/*", "@/packages/*"] }],
+    },
+  },
+  // features/auth/ → core/, packages/, services/ (NOT other features)
+  {
+    files: ["features/auth/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": ["error", { patterns: ["@/features/home/*", "@/features/todo/*"] }],
+    },
+  },
+  // features/home/ → core/, packages/, services/ (NOT other features)
+  {
+    files: ["features/home/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": ["error", { patterns: ["@/features/auth/*", "@/features/todo/*"] }],
+    },
+  },
+  // features/todo/ → core/, packages/, services/ (NOT other features)
+  {
+    files: ["features/todo/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": ["error", { patterns: ["@/features/auth/*", "@/features/home/*"] }],
+    },
+  },
+
   // -- Prettier Integration (Must be last)
   prettier,
 ])
