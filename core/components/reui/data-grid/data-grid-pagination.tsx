@@ -1,6 +1,6 @@
 "use client"
 
-import React, { ReactNode } from "react"
+import React, { type ReactNode } from "react"
 
 import { ArrowLeft01Icon, ArrowRight01Icon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
@@ -52,7 +52,7 @@ function DataGridPagination(props: DataGridPaginationProps): React.JSX.Element {
   const mergedProps: DataGridPaginationProps = { ...defaultProps, ...props }
 
   const btnBaseClasses = "p-0 text-sm"
-  const btnArrowClasses = btnBaseClasses + " rtl:transform rtl:rotate-180"
+  const btnArrowClasses = `${btnBaseClasses} rtl:transform rtl:rotate-180`
   const pageIndex = table.getState().pagination.pageIndex
   const pageSize = table.getState().pagination.pageSize
   const from = recordCount === 0 ? 0 : pageIndex * pageSize + 1
@@ -68,7 +68,7 @@ function DataGridPagination(props: DataGridPaginationProps): React.JSX.Element {
     : `${from} - ${to} of ${recordCount}`
 
   // Pagination limit logic
-  const paginationMoreLimit = mergedProps.moreLimit || 5
+  const paginationMoreLimit = mergedProps.moreLimit ?? 5
 
   // Determine the start and end of the pagination group
   const currentGroupStart = Math.floor(pageIndex / paginationMoreLimit) * paginationMoreLimit

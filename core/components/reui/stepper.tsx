@@ -108,14 +108,26 @@ function Stepper({
   const currentStep = value ?? activeStep
 
   // Keyboard navigation logic
-  const focusTrigger = (idx: number) => {
-    if (triggerNodes[idx]) triggerNodes[idx].focus()
-  }
-  const focusNext = (currentIdx: number) => focusTrigger((currentIdx + 1) % triggerNodes.length)
-  const focusPrev = (currentIdx: number) =>
-    focusTrigger((currentIdx - 1 + triggerNodes.length) % triggerNodes.length)
-  const focusFirst = () => focusTrigger(0)
-  const focusLast = () => focusTrigger(triggerNodes.length - 1)
+  const focusNext = useCallback(
+    (currentIdx: number) => {
+      const idx = (currentIdx + 1) % triggerNodes.length
+      triggerNodes[idx]?.focus()
+    },
+    [triggerNodes]
+  )
+  const focusPrev = useCallback(
+    (currentIdx: number) => {
+      const idx = (currentIdx - 1 + triggerNodes.length) % triggerNodes.length
+      triggerNodes[idx]?.focus()
+    },
+    [triggerNodes]
+  )
+  const focusFirst = useCallback(() => {
+    triggerNodes[0]?.focus()
+  }, [triggerNodes])
+  const focusLast = useCallback(() => {
+    triggerNodes[triggerNodes.length - 1]?.focus()
+  }, [triggerNodes])
 
   // Context value
   const contextValue = useMemo<StepperContextValue>(
@@ -136,7 +148,19 @@ function Stepper({
       triggerNodes,
       indicators,
     }),
-    [currentStep, handleSetActiveStep, children, orientation, registerTrigger, triggerNodes]
+    [
+      currentStep,
+      handleSetActiveStep,
+      children,
+      orientation,
+      registerTrigger,
+      focusNext,
+      focusPrev,
+      focusFirst,
+      focusLast,
+      triggerNodes,
+      indicators,
+    ]
   )
 
   return (
@@ -325,10 +349,10 @@ function StepperIndicator({ children, className }: React.ComponentProps<"div">) 
           (state === "completed" && indicators.completed) ||
           (state === "active" && indicators.active) ||
           (state === "inactive" && indicators.inactive))
-          ? (isLoading && indicators.loading) ||
-            (state === "completed" && indicators.completed) ||
-            (state === "active" && indicators.active) ||
-            (state === "inactive" && indicators.inactive)
+          ? ((isLoading && indicators.loading) ??
+            (state === "completed" && indicators.completed) ??
+            (state === "active" && indicators.active) ??
+            (state === "inactive" && indicators.inactive))
           : children}
       </div>
     </div>

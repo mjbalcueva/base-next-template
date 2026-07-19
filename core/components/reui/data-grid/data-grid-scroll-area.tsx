@@ -1,6 +1,6 @@
 "use client"
 
-import { PointerEvent, ReactNode, useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState, type PointerEvent, type ReactNode } from "react"
 
 import { ScrollArea as ScrollAreaPrimitive } from "@base-ui/react/scroll-area"
 
@@ -69,6 +69,10 @@ function applyMetrics(element: HTMLElement, metrics: ScrollbarMetrics) {
   element.style.setProperty("--data-grid-scrollbar-track-height", `${metrics.trackHeight}px`)
 }
 
+function setBodyUserSelect(disabled: boolean) {
+  document.body.style.userSelect = disabled ? "none" : ""
+}
+
 function DataGridScrollArea({
   children,
   className,
@@ -98,8 +102,7 @@ function DataGridScrollArea({
 
   const clearDragState = useCallback(() => {
     dragRef.current = null
-    document.body.style.userSelect = ""
-    document.body.style.webkitUserSelect = ""
+    setBodyUserSelect(false)
   }, [])
 
   const resetMetrics = useCallback(() => {
@@ -109,8 +112,6 @@ function DataGridScrollArea({
       applyMetrics(container, INITIAL_METRICS)
       metricsRef.current = INITIAL_METRICS
     }
-
-    setHasCustomVerticalOverflow(prev => (prev ? false : prev))
   }, [])
 
   const syncCustomVerticalScrollbar = useCallback(() => {
@@ -130,7 +131,7 @@ function DataGridScrollArea({
     const scrollWidth = viewport.scrollWidth
     const hasHorizontalOverflow = showHorizontal && scrollWidth > viewportWidth + 0.5
     const horizontalScrollbarSize = hasHorizontalOverflow
-      ? horizontalScrollbar?.offsetHeight || FALLBACK_SCROLLBAR_SIZE
+      ? (horizontalScrollbar?.offsetHeight ?? FALLBACK_SCROLLBAR_SIZE)
       : 0
     const trackHeight = Math.max(0, viewportHeight - headerHeight - horizontalScrollbarSize)
     const maxScroll = Math.max(0, scrollHeight - viewportHeight)
@@ -257,8 +258,7 @@ function DataGridScrollArea({
       startY: event.clientY,
     }
 
-    document.body.style.userSelect = "none"
-    document.body.style.webkitUserSelect = "none"
+    setBodyUserSelect(true)
   }
 
   const handleThumbPointerMove = (event: PointerEvent<HTMLDivElement>) => {
@@ -357,7 +357,7 @@ function DataGridScrollArea({
           >
             <div
               className={cn(
-                "bg-border absolute end-px w-2",
+                "bg-border absolute inset-e-px w-2",
                 "top-(--data-grid-scrollbar-thumb-top) h-(--data-grid-scrollbar-thumb-height)",
                 "rounded-full"
               )}

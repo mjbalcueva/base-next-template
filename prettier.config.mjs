@@ -3,26 +3,31 @@
 /** @typedef {import("@ianvs/prettier-plugin-sort-imports").PluginConfig} SortImportsConfig */
 
 /**
- * Universal Prettier configuration for all project types
- * Works for: Next.js apps, Node.js APIs, and shared packages
+ * Prettier configuration
+ *
+ * Architecture:
+ * app → features → integrations → core → other internal modules → relative imports
+ *
+ * Keeping imports ordered by architectural layer reinforces the project's
+ * dependency hierarchy and makes violations easier to spot during review.
  *
  * @type {PrettierConfig | SortImportsConfig | TailwindConfig}
  */
 const config = {
-  // Modern formatting preferences
+  // Formatting
+  arrowParens: "avoid",
   bracketSameLine: false,
   bracketSpacing: true,
-  arrowParens: "avoid",
   endOfLine: "lf",
+  htmlWhitespaceSensitivity: "css",
   printWidth: 100,
+  proseWrap: "preserve",
   quoteProps: "consistent",
   semi: false,
   singleQuote: false,
   tabWidth: 2,
   trailingComma: "es5",
   useTabs: false,
-  proseWrap: "preserve",
-  htmlWhitespaceSensitivity: "css",
 
   // Plugins (Tailwind must be last)
   plugins: [
@@ -31,59 +36,55 @@ const config = {
     "prettier-plugin-tailwindcss",
   ],
 
-  // Tailwind configuration
+  // Tailwind
   tailwindFunctions: ["cn", "cva"],
 
-  // Universal import order that works for all project types
+  /**
+   * Import order
+   *
+   * Groups are ordered from the outermost dependency layer to the innermost.
+   * Imports within each group are sorted alphabetically by the plugin.
+   */
   importOrder: [
-    // Framework imports (React, Next.js, Expo, NestJS)
-    "^(react/(.*)$)|^(react$)|^(react-native(.*)$)",
-    "^(next/(.*)$)|^(next$)",
-    "^(expo(.*)$)|^(expo$)",
-    "^@nestjs/(.*)$",
+    // Frameworks
+    "^(next$)",
+    "^(next/.*)$",
+    "^(react$)",
+    "^(react/.*)$",
     "",
-    // Node.js built-in & third-party modules (fs, path, etc.)
+    // Node.js & third-party packages
     "<BUILTIN_MODULES>",
     "<THIRD_PARTY_MODULES>",
     "",
-    // Internal path aliases — @/app (route layer)
+    // Project architecture
     "^@/app/(.*)$",
     "",
-    // Internal path aliases — @/core (shared primitives)
-    "^@/core/(.*)$",
-    "",
-    // Internal path aliases — @/features (feature modules)
     "^@/features/(.*)$",
     "",
-    // Internal path aliases — @/packages (shared libraries)
-    "^@/packages/(.*)$",
+    "^@/integrations/(.*)$",
     "",
-    // Internal path aliases — @/services (third-party integrations)
-    "^@/services/(.*)$",
+    "^@/core/(.*)$",
     "",
-    // Internal path aliases — catch-all @/
-    "^@/(.*)$",
+    // Other internal aliases
+    "^@/(?!app|features|integrations|core)(?:.*)$",
     "",
-    // Parent directory imports (deep)
+    // Relative imports (furthest first)
     "^(?:[.][.]/){2,}(?!.*[.]css$)(.*)$",
     "",
-    // Parent directory imports
     "^[.][.]/(?!.*[.]css$)(.*)$",
     "",
-    // Private module imports
     "^[.]/(?:[(][^)]+[)]/)?_(?!.*[.]css$)(.*)$",
     "",
-    // Sibling imports
     "^[.]/(?!.*[.]css$)(.*)$",
     "",
-    // Style imports
+    // Styles
     "[.]css$",
   ],
 
   importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"],
+
   importOrderTypeScriptVersion: "5.0.0",
 
-  // File-specific overrides
   overrides: [
     {
       files: "*.json.hbs",

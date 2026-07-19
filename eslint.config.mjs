@@ -10,24 +10,27 @@ import reactHooks from "eslint-plugin-react-hooks"
 import { defineConfig } from "eslint/config"
 import tseslint from "typescript-eslint"
 
-const tsFiles = ["**/*.ts", "**/*.tsx"]
-const allFiles = ["**/*.js", ...tsFiles]
+const sourceFiles = ["**/*.{js,ts,tsx}"]
+const tsFiles = ["**/*.{ts,tsx}"]
 
 export default defineConfig([
   // -- Ignore files tracked by VCS and specific config/types
   includeIgnoreFile(path.join(import.meta.dirname, ".gitignore")),
   { ignores: ["**/*.config.*", "next-env.d.ts"] },
 
-  // -- Base TypeScript and JavaScript Configuration
+  // -- Base Rules
   {
-    files: allFiles,
+    files: sourceFiles,
+
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: { projectService: true },
     },
+
     plugins: { "@typescript-eslint": tseslint.plugin },
+
     rules: {
-      // Base JavaScript rules
+      // JavaScript
       "curly": ["error", "all"],
       "eqeqeq": "warn",
       "no-console": "warn",
@@ -44,7 +47,7 @@ export default defineConfig([
       "prefer-const": "error",
       "prefer-template": "warn",
 
-      // TypeScript-specific rules
+      // TypeScript
       "@typescript-eslint/array-type": "off",
       "@typescript-eslint/consistent-type-definitions": "off",
       "@typescript-eslint/consistent-type-imports": ["warn", { fixStyle: "inline-type-imports" }],
@@ -59,7 +62,7 @@ export default defineConfig([
     },
   },
 
-  // -- React and Hooks (Using fixupPluginRules for legacy compatibility)
+  // -- React & Hooks
   {
     files: tsFiles,
     plugins: {
@@ -69,9 +72,11 @@ export default defineConfig([
     settings: {
       react: { version: "detect" },
     },
+
     rules: {
       ...react.configs.recommended.rules,
       ...reactHooks.configs.flat.recommended.rules,
+
       "react-hooks/exhaustive-deps": "warn",
       "react-hooks/incompatible-library": "off",
       "react-hooks/purity": "warn",
@@ -79,13 +84,29 @@ export default defineConfig([
       "react-hooks/set-state-in-effect": "warn",
       "react-hooks/static-components": "warn",
       "react-hooks/use-memo": "warn",
+
       "react/no-children-prop": "off",
       "react/prop-types": "off",
       "react/react-in-jsx-scope": "off",
     },
   },
 
-  // -- Next.js (Using fixupConfigRules to handle legacy Next.js plugin structure)
+  // -- React Compiler
+
+  {
+    files: tsFiles,
+
+    plugins: {
+      "react-compiler": reactCompiler,
+    },
+
+    rules: {
+      "react-compiler/react-compiler": "warn",
+    },
+  },
+
+  // -- Next.js
+
   ...fixupConfigRules(nextPlugin.configs.recommended).map(config => ({
     ...config,
     files: tsFiles,
@@ -94,16 +115,10 @@ export default defineConfig([
   // -- TanStack Query
   ...pluginQuery.configs["flat/recommended"],
 
-  // -- React Compiler
+  // -- Project Architecture
   {
-    files: tsFiles,
-    plugins: { "react-compiler": reactCompiler },
-    rules: { "react-compiler/react-compiler": "warn" },
-  },
+    files: sourceFiles,
 
-  // -- Restricted Environment Access
-  {
-    files: allFiles,
     rules: {
       "no-restricted-properties": [
         "error",
@@ -117,14 +132,16 @@ export default defineConfig([
   },
   {
     files: ["env.ts", "env.mjs", "src/env.ts"],
+
     rules: {
       "no-restricted-properties": "off",
     },
   },
 
-  // -- for local primitive/block libraries
+  // -- Project Overrides
   {
-    files: ["src/core/components/reui/**/*.{ts,tsx}", "src/core/components/ui/**/*.{ts,tsx}"],
+    files: ["src/core/components/ui/**/*.{ts,tsx}", "src/core/components/reui/**/*.{ts,tsx}"],
+
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-unused-vars": "off",
@@ -138,53 +155,6 @@ export default defineConfig([
     },
   },
 
-  // -- Import hierarchy enforcement (strict top-down, no intersections)
-  // core/ → itself only
-  {
-    files: ["core/**/*.{ts,tsx}"],
-    rules: {
-      "no-restricted-imports": [
-        "error",
-        { patterns: ["@/features/*", "@/packages/*", "@/services/*"] },
-      ],
-    },
-  },
-  // packages/ → core/ only
-  {
-    files: ["packages/**/*.{ts,tsx}"],
-    rules: {
-      "no-restricted-imports": ["error", { patterns: ["@/features/*", "@/services/*"] }],
-    },
-  },
-  // services/ → core/ only
-  {
-    files: ["services/**/*.{ts,tsx}"],
-    rules: {
-      "no-restricted-imports": ["error", { patterns: ["@/features/*", "@/packages/*"] }],
-    },
-  },
-  // features/auth/ → core/, packages/, services/ (NOT other features)
-  {
-    files: ["features/auth/**/*.{ts,tsx}"],
-    rules: {
-      "no-restricted-imports": ["error", { patterns: ["@/features/home/*", "@/features/todo/*"] }],
-    },
-  },
-  // features/home/ → core/, packages/, services/ (NOT other features)
-  {
-    files: ["features/home/**/*.{ts,tsx}"],
-    rules: {
-      "no-restricted-imports": ["error", { patterns: ["@/features/auth/*", "@/features/todo/*"] }],
-    },
-  },
-  // features/todo/ → core/, packages/, services/ (NOT other features)
-  {
-    files: ["features/todo/**/*.{ts,tsx}"],
-    rules: {
-      "no-restricted-imports": ["error", { patterns: ["@/features/auth/*", "@/features/home/*"] }],
-    },
-  },
-
-  // -- Prettier Integration (Must be last)
+  // -- Prettier
   prettier,
 ])

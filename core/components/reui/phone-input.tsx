@@ -55,7 +55,7 @@ function PhoneInput({
   value,
   ...props
 }: PhoneInputProps) {
-  const phoneInputSize = variant || "default"
+  const phoneInputSize = variant ?? "default"
   return (
     <PhoneInputContext.Provider
       value={{ variant: phoneInputSize, popupClassName, scrollAreaClassName }}
@@ -71,8 +71,8 @@ function PhoneInput({
         countrySelectComponent={CountrySelect}
         inputComponent={InputComponent}
         smartCaret={false}
-        value={value || undefined}
-        onChange={value => onChange?.(value || ("" as BasePhoneInput.Value))}
+        value={value ?? undefined}
+        onChange={value => onChange?.(value ?? ("" as BasePhoneInput.Value))}
         {...props}
       />
     </PhoneInputContext.Provider>
@@ -163,7 +163,7 @@ function CountrySelect({
         <ComboboxList>
           <div className="relative flex max-h-full">
             <div className="flex max-h-[min(var(--available-height),24rem)] w-full scroll-pt-2 scroll-pb-2 flex-col overscroll-contain">
-              <ScrollArea className="size-full min-h-0 **:data-[slot=scroll-area-scrollbar]:m-0 [&_[data-slot=scroll-area-viewport]]:h-full [&_[data-slot=scroll-area-viewport]]:overscroll-contain">
+              <ScrollArea className="size-full min-h-0 **:data-[slot=scroll-area-scrollbar]:m-0 **:data-[slot=scroll-area-viewport]:h-full **:data-[slot=scroll-area-viewport]:overscroll-contain">
                 {filteredCountries.map((item: CountryEntry) =>
                   item.value ? (
                     <ComboboxItem

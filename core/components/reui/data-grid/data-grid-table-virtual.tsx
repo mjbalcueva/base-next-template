@@ -1,13 +1,21 @@
 "use client"
 
-import { CSSProperties, memo, ReactNode, useCallback, useEffect, useState } from "react"
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react"
 
-import { Column, flexRender, Row, Table } from "@tanstack/react-table"
+import { flexRender, type Column, type Row, type Table } from "@tanstack/react-table"
 import {
   useVirtualizer,
-  VirtualItem,
-  Virtualizer,
-  VirtualizerOptions,
+  type VirtualItem,
+  type Virtualizer,
+  type VirtualizerOptions,
 } from "@tanstack/react-virtual"
 
 import { useDataGrid } from "@/core/components/reui/data-grid/data-grid"
@@ -128,7 +136,7 @@ function DataGridTableVirtualUtilityRow<TData>({
   const hasRightPinnedColumns = hasDataGridTableRightPinnedColumns(table)
 
   return (
-    <tr aria-hidden={ariaHidden || undefined} className={rowClassName}>
+    <tr aria-hidden={ariaHidden ?? undefined} className={rowClassName}>
       {leftVisibleColumns.map(column => (
         <DataGridTableVirtualPinnedPlaceholderCell column={column} key={column.id} />
       ))}
@@ -353,8 +361,8 @@ function DataGridTableVirtual<TData>({
   } = virtualizerOptions ?? {}
 
   const isVirtualizationEnabled = virtualizerOptions?.enabled !== false
-  const loadingMoreMessage = props.fetchingMoreMessage || props.loadingMessage || "Loading..."
-  const allRowsLoadedMessage = props.allRowsLoadedMessage || "All records loaded"
+  const loadingMoreMessage = props.fetchingMoreMessage ?? props.loadingMessage ?? "Loading..."
+  const allRowsLoadedMessage = props.allRowsLoadedMessage ?? "All records loaded"
 
   const handleViewportRef = useCallback((node: HTMLDivElement | null) => {
     setViewportElements({
@@ -406,7 +414,10 @@ function DataGridTableVirtual<TData>({
     ...virtualizerOptionsRest,
   }) as DataGridTableVirtualizerInstance
 
-  const virtualItems = isVirtualizationEnabled ? virtualizer.getVirtualItems() : []
+  const virtualItems = useMemo(
+    () => (isVirtualizationEnabled ? virtualizer.getVirtualItems() : []),
+    [isVirtualizationEnabled, virtualizer]
+  )
   const totalSize = isVirtualizationEnabled ? virtualizer.getTotalSize() : 0
   const measureRowRef =
     isVirtualizationEnabled && customMeasureElement ? virtualizer.measureElement : undefined
@@ -490,7 +501,7 @@ function DataGridTableVirtual<TData>({
           </DataGridTableHead>
         )}
 
-        {renderHeader && (props.tableLayout?.stripped || !props.tableLayout?.rowBorder) && (
+        {renderHeader && (props.tableLayout?.stripped ?? !props.tableLayout?.rowBorder) && (
           <DataGridTableRowSpacer />
         )}
 

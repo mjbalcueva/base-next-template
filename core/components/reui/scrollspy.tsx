@@ -101,7 +101,7 @@ export function Scrollspy({
 
     // Set only one anchor active and sync the URL hash
     const activeAnchor = anchorElementsRef.current[activeIdx]
-    const sectionId = activeAnchor?.getAttribute(`data-${dataAttribute}-anchor`) || null
+    const sectionId = activeAnchor?.getAttribute(`data-${dataAttribute}-anchor`) ?? null
 
     setActiveSection(sectionId)
   }, [anchorElementsRef, targetRef, dataAttribute, offset, setActiveSection])
@@ -110,7 +110,7 @@ export function Scrollspy({
     (anchorElement: HTMLElement) => (event?: Event) => {
       if (event) event.preventDefault()
       const sectionId =
-        anchorElement.getAttribute(`data-${dataAttribute}-anchor`)?.replace("#", "") || null
+        anchorElement.getAttribute(`data-${dataAttribute}-anchor`)?.replace("#", "") ?? null
       if (!sectionId) return
       const sectionElement = document.getElementById(sectionId)
       if (!sectionElement) return

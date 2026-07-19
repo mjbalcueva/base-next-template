@@ -8,9 +8,9 @@ import {
   isValidElement,
   useCallback,
   useContext,
-  useLayoutEffect,
   useMemo,
   useState,
+  useSyncExternalStore,
   type CSSProperties,
   type ReactElement,
   type ReactNode,
@@ -21,19 +21,19 @@ import { useRender } from "@base-ui/react/use-render"
 import {
   defaultDropAnimationSideEffects,
   DndContext,
-  DragEndEvent,
   DragOverlay,
-  DragStartEvent,
-  DropAnimation,
   KeyboardSensor,
   MeasuringStrategy,
-  Modifiers,
   MouseSensor,
   TouchSensor,
-  UniqueIdentifier,
   useSensor,
   useSensors,
+  type DragEndEvent,
   type DraggableSyntheticListeners,
+  type DragStartEvent,
+  type DropAnimation,
+  type Modifiers,
+  type UniqueIdentifier,
 } from "@dnd-kit/core"
 import {
   arrayMove,
@@ -115,9 +115,11 @@ function Sortable<T>({
   ...props
 }: SortableRootProps<T>) {
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null)
-  const [mounted, setMounted] = useState(false)
-
-  useLayoutEffect(() => setMounted(true), [])
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  )
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
@@ -200,10 +202,10 @@ function Sortable<T>({
     if (!activeId) return null
     let result: ReactNode = null
     Children.forEach(children, child => {
-      if (isValidElement(child) && (child.props as any).value === activeId) {
-        result = cloneElement(child as ReactElement<any>, {
-          ...(child.props as any),
-          className: cn((child.props as any).className, "z-50"),
+      if (isValidElement(child) && (child.props as { value?: string }).value === activeId) {
+        result = cloneElement(child as ReactElement<{ value?: string; className?: string }>, {
+          ...(child.props as { value?: string; className?: string }),
+          className: cn((child.props as { className?: string }).className, "z-50"),
         })
       }
     })
@@ -264,7 +266,7 @@ function SortableItem({ value, className, render, disabled, ...props }: Sortable
     isDragging: isSortableDragging,
   } = useSortable({
     id: value,
-    disabled: disabled || isOverlay,
+    disabled: disabled === true || isOverlay,
     animateLayoutChanges,
   })
 
@@ -351,9 +353,11 @@ export interface SortableOverlayProps extends Omit<
 
 function SortableOverlay({ children, className, ...props }: SortableOverlayProps) {
   const { activeId, modifiers } = useContext(SortableInternalContext)
-  const [mounted, setMounted] = useState(false)
-
-  useLayoutEffect(() => setMounted(true), [])
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  )
 
   const content =
     activeId && children

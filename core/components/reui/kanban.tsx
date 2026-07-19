@@ -3,13 +3,13 @@
 import * as React from "react"
 import {
   createContext,
-  CSSProperties,
-  ReactNode,
   useCallback,
   useContext,
-  useLayoutEffect,
   useMemo,
   useState,
+  useSyncExternalStore,
+  type CSSProperties,
+  type ReactNode,
 } from "react"
 
 import { mergeProps } from "@base-ui/react/merge-props"
@@ -17,21 +17,21 @@ import { useRender } from "@base-ui/react/use-render"
 import {
   defaultDropAnimationSideEffects,
   DndContext,
-  DragEndEvent,
-  DragOverEvent,
   DragOverlay,
-  DragStartEvent,
-  DropAnimation,
   KeyboardSensor,
   MeasuringStrategy,
-  Modifiers,
   MouseSensor,
   TouchSensor,
-  UniqueIdentifier,
   useSensor,
   useSensors,
+  type DragEndEvent,
   type DraggableAttributes,
   type DraggableSyntheticListeners,
+  type DragOverEvent,
+  type DragStartEvent,
+  type DropAnimation,
+  type Modifiers,
+  type UniqueIdentifier,
 } from "@dnd-kit/core"
 import {
   arrayMove,
@@ -60,17 +60,9 @@ interface KanbanContextProps<T> {
   modifiers?: Modifiers
 }
 
-const KanbanContext = createContext<KanbanContextProps<any>>({
-  columns: {},
-  setColumns: () => {},
-  getItemId: () => "",
-  columnIds: [],
-  activeId: null,
-  setActiveId: () => {},
-  findContainer: () => undefined,
-  isColumn: () => false,
-  modifiers: undefined,
-})
+const KanbanContext = createContext<KanbanContextProps<unknown>>(
+  undefined as unknown as KanbanContextProps<unknown>
+)
 
 const ColumnContext = createContext<{
   attributes: DraggableAttributes
@@ -330,7 +322,7 @@ function Kanban<T>({
   }
 
   return (
-    <KanbanContext.Provider value={contextValue}>
+    <KanbanContext.Provider value={contextValue as unknown as KanbanContextProps<unknown>}>
       <DndContext
         sensors={sensors}
         modifiers={modifiers}
@@ -393,7 +385,7 @@ function KanbanColumn({ value, className, render, disabled, ...props }: KanbanCo
     isDragging: isSortableDragging,
   } = useSortable({
     id: value,
-    disabled: disabled || isOverlay,
+    disabled: disabled ?? isOverlay,
     animateLayoutChanges,
   })
 
@@ -502,7 +494,7 @@ function KanbanItem({ value, className, render, disabled, ...props }: KanbanItem
     isDragging: isSortableDragging,
   } = useSortable({
     id: value,
-    disabled: disabled || isOverlay,
+    disabled: disabled ?? isOverlay,
     animateLayoutChanges,
   })
 
@@ -625,9 +617,14 @@ export interface KanbanOverlayProps extends Omit<
 
 function KanbanOverlay({ children, className, ...props }: KanbanOverlayProps) {
   const { activeId, isColumn, modifiers } = useContext(KanbanContext)
-  const [mounted, setMounted] = useState(false)
 
-  useLayoutEffect(() => setMounted(true), [])
+  // Client-only check: `useSyncExternalStore` returns `false` during SSR
+  // and `true` on the client, avoiding the need for a state+effect pattern.
+  const mounted = useSyncExternalStore(
+    useCallback(() => () => {}, []),
+    () => true,
+    () => false
+  )
 
   const variant = activeId ? (isColumn(activeId) ? "column" : "item") : "item"
 

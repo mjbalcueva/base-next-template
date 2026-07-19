@@ -274,7 +274,7 @@ function FilterInput<T = unknown>({
   // Handle blur event - validate when user leaves input
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const value = e.target.value
-    const pattern = field?.pattern || props.pattern
+    const pattern = field?.pattern ?? props.pattern
 
     // Only validate if there's a value and (pattern or validation function)
     if (value && (pattern || field?.validation)) {
@@ -289,7 +289,7 @@ function FilterInput<T = unknown>({
           valid = result
         } else {
           valid = result.valid
-          customMessage = result.message || ""
+          customMessage = result.message ?? ""
         }
       } else if (pattern) {
         // Use pattern validation
@@ -327,9 +327,9 @@ function FilterInput<T = unknown>({
     <InputGroup
       className={cn(
         "w-36",
-        context.size == "sm" && "h-7!",
-        context.size == "default" && "h-8!",
-        context.size == "lg" && "h-9!",
+        context.size === "sm" && "h-7!",
+        context.size === "default" && "h-8!",
+        context.size === "lg" && "h-9!",
         className
       )}
     >
@@ -342,14 +342,14 @@ function FilterInput<T = unknown>({
         ref={inputRef}
         aria-invalid={!isValid}
         aria-describedby={
-          !isValid && validationMessage ? `${field?.key || "input"}-error` : undefined
+          !isValid && validationMessage ? `${field?.key ?? "input"}-error` : undefined
         }
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
         className={cn(
-          context.size == "sm" && "h-7! text-xs",
-          context.size == "default" && "h-8!",
-          context.size == "lg" && "h-9!"
+          context.size === "sm" && "h-7! text-xs",
+          context.size === "default" && "h-8!",
+          context.size === "lg" && "h-9!"
         )}
         {...props}
       />
@@ -565,7 +565,7 @@ const getOperatorsForField = <T = unknown,>(
   const operators = createOperatorsFromI18n(i18n)
 
   // Determine field type for operator selection
-  let fieldType = field.type || "select"
+  let fieldType = field.type ?? "select"
 
   // If it's a select field but has multiple values, treat as multiselect
   if (fieldType === "select" && values.length > 1) {
@@ -598,7 +598,7 @@ function FilterOperatorDropdown<T = unknown>({
 
   // Find the operator label, with fallback to formatted operator name
   const operatorLabel =
-    operators.find(op => op.value === operator)?.label ||
+    operators.find(op => op.value === operator)?.label ??
     context.i18n.helpers.formatOperator(operator)
 
   return (
@@ -676,10 +676,6 @@ function SelectOptionsPopover<T = unknown>({
   }, [open])
 
   useEffect(() => {
-    setHighlightedIndex(-1)
-  }, [searchInput, open])
-
-  useEffect(() => {
     if (highlightedIndex >= 0 && open) {
       const element = document.getElementById(`${baseId}-item-${highlightedIndex}`)
       element?.scrollIntoView({ block: "nearest" })
@@ -689,8 +685,8 @@ function SelectOptionsPopover<T = unknown>({
   const isMultiSelect = field.type === "multiselect" || values.length > 1
   const effectiveValues = (field.value !== undefined ? (field.value as T[]) : values) || []
 
-  const selectedOptions = field.options?.filter(opt => effectiveValues.includes(opt.value)) || []
-  const unselectedOptions = field.options?.filter(opt => !effectiveValues.includes(opt.value)) || []
+  const selectedOptions = field.options?.filter(opt => effectiveValues.includes(opt.value)) ?? []
+  const unselectedOptions = field.options?.filter(opt => !effectiveValues.includes(opt.value)) ?? []
 
   // Filter options based on search input
   const filteredSelectedOptions = selectedOptions // Keep all selected visible
@@ -722,7 +718,7 @@ function SelectOptionsPopover<T = unknown>({
             aria-activedescendant={
               highlightedIndex >= 0 ? `${baseId}-item-${highlightedIndex}` : undefined
             }
-            placeholder={context.i18n.placeholders.searchField(field.label || "")}
+            placeholder={context.i18n.placeholders.searchField(field.label ?? "")}
             className={cn(
               "border-input h-8 rounded-none border-0 bg-transparent! px-2 text-sm shadow-none",
               "focus-visible:border-border focus-visible:ring-0 focus-visible:ring-offset-0",
@@ -786,7 +782,7 @@ function SelectOptionsPopover<T = unknown>({
           role="listbox"
           id={`${baseId}-listbox`}
         >
-          <ScrollArea className="size-full min-h-0 **:data-[slot=scroll-area-scrollbar]:m-0 [&_[data-slot=scroll-area-viewport]]:h-full [&_[data-slot=scroll-area-viewport]]:overscroll-contain">
+          <ScrollArea className="size-full min-h-0 **:data-[slot=scroll-area-scrollbar]:m-0 **:data-[slot=scroll-area-viewport]:h-full **:data-[slot=scroll-area-viewport]:overscroll-contain">
             {allFilteredOptions.length === 0 && (
               <div className="text-muted-foreground py-2 text-center text-sm">
                 {context.i18n.noResultsFound}
@@ -916,7 +912,7 @@ function SelectOptionsPopover<T = unknown>({
           <Button variant="outline" size={context.size}>
             <div className="flex items-center gap-1.5">
               {field.customValueRenderer ? (
-                field.customValueRenderer(values, field.options || [])
+                field.customValueRenderer(values, field.options ?? [])
               ) : (
                 <>
                   {selectedOptions.length > 0 && (
@@ -937,7 +933,7 @@ function SelectOptionsPopover<T = unknown>({
           </Button>
         }
       />
-      <DropdownMenuContent align="start" className={cn("w-[200px] px-0", field.className)}>
+      <DropdownMenuContent align="start" className={cn("w-50 px-0", field.className)}>
         {renderMenuContent()}
       </DropdownMenuContent>
     </DropdownMenu>
@@ -1140,10 +1136,6 @@ function FilterSubmenuContent<T = unknown>({
   }, [isActive, field.searchable, baseId])
 
   useEffect(() => {
-    setHighlightedIndex(-1)
-  }, [searchInput])
-
-  useEffect(() => {
     if (highlightedIndex >= 0 && isActive) {
       const element = document.getElementById(`${baseId}-item-${highlightedIndex}`)
       element?.scrollIntoView({ block: "nearest" })
@@ -1157,15 +1149,9 @@ function FilterSubmenuContent<T = unknown>({
         if (isSelected) return true
         if (!searchInput) return true
         return option.label.toLowerCase().includes(searchInput.toLowerCase())
-      }) || []
+      }) ?? []
     )
   }, [field.options, searchInput, currentValues])
-
-  useEffect(() => {
-    if (isActive && filteredOptions.length > 0) {
-      setHighlightedIndex(0)
-    }
-  }, [isActive, filteredOptions.length])
 
   return (
     <div className="flex flex-col" onMouseEnter={onActive}>
@@ -1181,7 +1167,7 @@ function FilterSubmenuContent<T = unknown>({
             aria-activedescendant={
               highlightedIndex >= 0 ? `${baseId}-item-${highlightedIndex}` : undefined
             }
-            placeholder={i18n.placeholders.searchField(field.label || "")}
+            placeholder={i18n.placeholders.searchField(field.label ?? "")}
             className={cn(
               "h-8 rounded-none border-0 bg-transparent! px-2 text-sm shadow-none",
               "focus-visible:border-border focus-visible:ring-0 focus-visible:ring-offset-0",
@@ -1189,8 +1175,14 @@ function FilterSubmenuContent<T = unknown>({
             )}
             value={searchInput}
             onBlur={() => isActive && inputRef.current?.focus()}
-            onChange={e => setSearchInput(e.target.value)}
-            onFocus={() => onActive?.()}
+            onChange={e => {
+              setSearchInput(e.target.value)
+              setHighlightedIndex(-1)
+            }}
+            onFocus={() => {
+              onActive?.()
+              if (filteredOptions.length > 0) setHighlightedIndex(0)
+            }}
             onMouseEnter={e => {
               onActive?.()
               e.stopPropagation()
@@ -1267,7 +1259,7 @@ function FilterSubmenuContent<T = unknown>({
             }
           }}
         >
-          <ScrollArea className="size-full min-h-0 **:data-[slot=scroll-area-scrollbar]:m-0 [&_[data-slot=scroll-area-viewport]]:h-full [&_[data-slot=scroll-area-viewport]]:overscroll-contain">
+          <ScrollArea className="size-full min-h-0 **:data-[slot=scroll-area-scrollbar]:m-0 **:data-[slot=scroll-area-viewport]:h-full **:data-[slot=scroll-area-viewport]:overscroll-contain">
             {filteredOptions.length === 0 ? (
               <div className="text-muted-foreground py-2 text-center text-sm">
                 {i18n.noResultsFound}
@@ -1365,21 +1357,11 @@ export function Filters<T = unknown>({
   }, [addFilterOpen, activeMenu])
 
   useEffect(() => {
-    setHighlightedIndex(-1)
-  }, [menuSearchInput])
-
-  useEffect(() => {
     if (highlightedIndex >= 0 && addFilterOpen) {
       const element = document.getElementById(`${rootId}-item-${highlightedIndex}`)
       element?.scrollIntoView({ block: "nearest" })
     }
   }, [highlightedIndex, addFilterOpen, rootId])
-
-  useEffect(() => {
-    if (!addFilterOpen) {
-      setOpenSubMenu(null)
-    }
-  }, [addFilterOpen])
 
   // Track which filter instance is being built in the current Add Filter menu session
   // Maps fieldKey -> unique filterId created during this open session
@@ -1434,7 +1416,7 @@ export function Filters<T = unknown>({
       const field = fieldsMap[fieldKey]
       if (field && field.key) {
         const defaultOperator =
-          field.defaultOperator || (field.type === "multiselect" ? "is_any_of" : "is")
+          field.defaultOperator ?? (field.type === "multiselect" ? "is_any_of" : "is")
         const defaultValues: unknown[] = field.type === "text" ? [""] : []
         const newFilter = createFilter<T>(fieldKey, defaultOperator, defaultValues as T[])
         setLastAddedFilterId(newFilter.id)
@@ -1467,12 +1449,6 @@ export function Filters<T = unknown>({
     )
   }, [selectableFields, menuSearchInput])
 
-  useEffect(() => {
-    if (addFilterOpen && filteredFields.length > 0) {
-      setHighlightedIndex(0)
-    }
-  }, [addFilterOpen, filteredFields.length])
-
   const triggerButton = useRender({
     render: trigger as React.ReactElement,
     defaultTagName: "button",
@@ -1499,13 +1475,15 @@ export function Filters<T = unknown>({
               if (!open) {
                 setMenuSearchInput("")
                 setSessionFilterIds({})
+                setOpenSubMenu(null)
               } else {
                 setActiveMenu("root")
+                if (filteredFields.length > 0) setHighlightedIndex(0)
               }
             }}
           >
             <DropdownMenuTrigger render={triggerButton} />
-            <DropdownMenuContent className={cn("w-[220px]", menuPopupClassName)} align="start">
+            <DropdownMenuContent className={cn("w-55", menuPopupClassName)} align="start">
               {showSearchInput && (
                 <>
                   <div className="relative">
@@ -1526,7 +1504,10 @@ export function Filters<T = unknown>({
                       onFocus={() => setActiveMenu("root")}
                       onMouseEnter={() => setActiveMenu("root")}
                       onBlur={() => activeMenu === "root" && rootInputRef.current?.focus()}
-                      onChange={e => setMenuSearchInput(e.target.value)}
+                      onChange={e => {
+                        setMenuSearchInput(e.target.value)
+                        setHighlightedIndex(-1)
+                      }}
                       onClick={e => e.stopPropagation()}
                       onKeyDown={e => {
                         if (e.key === "ArrowDown") {
@@ -1555,8 +1536,8 @@ export function Filters<T = unknown>({
 
                           if (e.key === "ArrowRight" && hasSubMenu) {
                             e.preventDefault()
-                            setOpenSubMenu(field.key || null)
-                            setActiveMenu(field.key || "root")
+                            setOpenSubMenu(field.key ?? null)
+                            setActiveMenu(field.key ?? "root")
                           } else if (e.key === "ArrowLeft") {
                             e.preventDefault()
                             if (openSubMenu) {
@@ -1630,7 +1611,7 @@ export function Filters<T = unknown>({
                           const sessionFilter = sessionFilterId
                             ? filters.find(f => f.id === sessionFilterId)
                             : null
-                          const currentValues = sessionFilter?.values || []
+                          const currentValues = sessionFilter?.values ?? []
 
                           return (
                             <DropdownMenuSub
@@ -1661,7 +1642,7 @@ export function Filters<T = unknown>({
                                 {field.icon}
                                 <span>{field.label}</span>
                               </DropdownMenuSubTrigger>
-                              <DropdownMenuSubContent className="w-[200px]" side="right">
+                              <DropdownMenuSubContent className="w-50" side="right">
                                 <FilterSubmenuContent
                                   field={field}
                                   currentValues={currentValues}
@@ -1703,7 +1684,7 @@ export function Filters<T = unknown>({
                                       } else {
                                         const newFilter = createFilter<T>(
                                           fieldKey,
-                                          field.defaultOperator || "is_any_of",
+                                          field.defaultOperator ?? "is_any_of",
                                           nextValues
                                         )
                                         onChange([...filters, newFilter])
@@ -1715,7 +1696,7 @@ export function Filters<T = unknown>({
                                     } else {
                                       const newFilter = createFilter<T>(
                                         fieldKey,
-                                        field.defaultOperator || "is",
+                                        field.defaultOperator ?? "is",
                                         [value] as T[]
                                       )
                                       setLastAddedFilterId(newFilter.id)
@@ -1791,7 +1772,7 @@ export const createFilter = <T = unknown,>(
 ): Filter<T> => ({
   id: `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
   field,
-  operator: operator || "is",
+  operator: operator ?? "is",
   values,
 })
 

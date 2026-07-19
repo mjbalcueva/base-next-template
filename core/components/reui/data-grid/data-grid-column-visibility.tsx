@@ -1,8 +1,8 @@
 "use client"
 
-import { ReactElement } from "react"
+import { type ReactElement } from "react"
 
-import { Table } from "@tanstack/react-table"
+import { type Table } from "@tanstack/react-table"
 
 import { getColumnHeaderLabel } from "@/core/components/reui/data-grid/data-grid"
 import {
@@ -24,7 +24,7 @@ function DataGridColumnVisibility<TData>({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger render={trigger} />
-      <DropdownMenuContent align="end" className="min-w-[150px]">
+      <DropdownMenuContent align="end" className="min-w-37.5">
         <DropdownMenuGroup>
           <DropdownMenuLabel className="font-medium">Toggle Columns</DropdownMenuLabel>
           {table

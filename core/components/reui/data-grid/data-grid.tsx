@@ -1,8 +1,14 @@
 "use client"
 
-import { createContext, ReactNode, useContext, useLayoutEffect, useMemo, useRef } from "react"
+import { createContext, useContext, useLayoutEffect, useMemo, useRef, type ReactNode } from "react"
 
-import { Column, ColumnFiltersState, RowData, SortingState, Table } from "@tanstack/react-table"
+import {
+  type Column,
+  type ColumnFiltersState,
+  type RowData,
+  type SortingState,
+  type Table,
+} from "@tanstack/react-table"
 
 import { cn } from "@/core/lib/utils"
 
@@ -120,7 +126,6 @@ function DataGridProvider<TData extends object>({
   table,
   ...props
 }: DataGridProps<TData> & { table: Table<TData> }) {
-  const tableState = table.getState()
   const resolvedColumnsResizeMode = props.tableLayout?.columnsResizeMode ?? "onEnd"
 
   // Keep resize mode aligned with the DataGrid contract every render so
@@ -141,34 +146,9 @@ function DataGridProvider<TData extends object>({
       props,
       table,
       recordCount: props.recordCount,
-      isLoading: props.isLoading || false,
+      isLoading: props.isLoading ?? false,
     }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      table,
-      props.recordCount,
-      props.isLoading,
-      props.loadingMode,
-      props.loadingMessage,
-      props.fetchingMoreMessage,
-      props.allRowsLoadedMessage,
-      props.emptyMessage,
-      props.onRowClick,
-      props.className,
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      JSON.stringify(props.tableLayout),
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      JSON.stringify(props.tableClassNames),
-      tableState.sorting,
-      tableState.pagination,
-      tableState.columnFilters,
-      tableState.rowSelection,
-      tableState.expanded,
-      tableState.columnVisibility,
-      tableState.columnOrder,
-      tableState.columnPinning,
-      tableState.globalFilter,
-    ]
+    [props, table]
   )
 
   return <DataGridContext.Provider value={value}>{children}</DataGridContext.Provider>
@@ -214,11 +194,11 @@ function DataGrid<TData extends object>({ children, table, ...props }: DataGridP
     ...props,
     tableLayout: {
       ...defaultProps.tableLayout,
-      ...(props.tableLayout || {}),
+      ...(props.tableLayout ?? {}),
     },
     tableClassNames: {
       ...defaultProps.tableClassNames,
-      ...(props.tableClassNames || {}),
+      ...(props.tableClassNames ?? {}),
     },
   }
 
@@ -237,7 +217,6 @@ function DataGrid<TData extends object>({ children, table, ...props }: DataGridP
 function DataGridContainer({
   children,
   className,
-  border = true,
 }: {
   children: ReactNode
   className?: string

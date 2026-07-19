@@ -4,7 +4,7 @@ import { createContext, useContext } from "react"
 
 import { mergeProps } from "@base-ui/react/merge-props"
 import { useRender } from "@base-ui/react/use-render"
-import { ItemInstance } from "@headless-tree/core"
+import { type ItemInstance, type TreeInstance } from "@headless-tree/core"
 import { ArrowDown01Icon, MinusSignIcon, PlusSignIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 
@@ -12,10 +12,10 @@ import { cn } from "@/core/lib/utils"
 
 type ToggleIconType = "chevron" | "plus-minus"
 
-interface TreeContextValue<T = any> {
+interface TreeContextValue {
   indent: number
-  currentItem?: ItemInstance<T>
-  tree?: any
+  currentItem?: ItemInstance<unknown>
+  tree?: TreeInstance<unknown>
   toggleIconType?: ToggleIconType
 }
 
@@ -26,13 +26,13 @@ const TreeContext = createContext<TreeContextValue>({
   toggleIconType: "plus-minus",
 })
 
-function useTreeContext<T = any>() {
-  return useContext(TreeContext) as TreeContextValue<T>
+function useTreeContext() {
+  return useContext(TreeContext)
 }
 
 interface TreeProps extends React.HTMLAttributes<HTMLDivElement> {
   indent?: number
-  tree?: any
+  tree?: TreeInstance<unknown>
   toggleIconType?: ToggleIconType
 }
 
@@ -62,13 +62,13 @@ function Tree({ indent = 20, tree, className, toggleIconType = "chevron", ...pro
   )
 }
 
-interface TreeItemProps<T = any> extends Omit<useRender.ComponentProps<"button">, "indent"> {
+interface TreeItemProps<T = unknown> extends Omit<useRender.ComponentProps<"button">, "indent"> {
   item: ItemInstance<T>
   indent?: number
 }
 
-function TreeItem<T = any>({ item, className, render, children, ...props }: TreeItemProps<T>) {
-  const parentContext = useTreeContext<T>()
+function TreeItem<T = unknown>({ item, className, render, children, ...props }: TreeItemProps<T>) {
+  const parentContext = useTreeContext()
   const { indent } = parentContext
 
   const itemProps = typeof item.getProps === "function" ? item.getProps() : {}
@@ -101,7 +101,7 @@ function TreeItem<T = any>({ item, className, render, children, ...props }: Tree
   }
 
   return (
-    <TreeContext.Provider value={{ ...parentContext, currentItem: item }}>
+    <TreeContext.Provider value={{ ...parentContext, currentItem: item as ItemInstance<unknown> }}>
       {useRender({
         defaultTagName: "button",
         render,
@@ -111,20 +111,21 @@ function TreeItem<T = any>({ item, className, render, children, ...props }: Tree
   )
 }
 
-interface TreeItemLabelProps<T = any> extends React.HTMLAttributes<HTMLSpanElement> {
+interface TreeItemLabelProps<T = unknown> extends React.HTMLAttributes<HTMLSpanElement> {
   item?: ItemInstance<T>
 }
 
-function TreeItemLabel<T = any>({
+function TreeItemLabel<T = unknown>({
   item: propItem,
   children,
   className,
   ...props
 }: TreeItemLabelProps<T>) {
-  const { currentItem, toggleIconType } = useTreeContext<T>()
-  const item = propItem || currentItem
+  const { currentItem, toggleIconType } = useTreeContext()
+  const item = propItem ?? currentItem
 
   if (!item) {
+    // eslint-disable-next-line no-console
     console.warn("TreeItemLabel: No item provided via props or context")
     return null
   }
@@ -166,7 +167,7 @@ function TreeItemLabel<T = any>({
             className="text-muted-foreground size-4 in-aria-[expanded=false]:-rotate-90"
           />
         ))}
-      {children || (typeof item.getItemName === "function" ? item.getItemName() : null)}
+      {children ?? (typeof item.getItemName === "function" ? item.getItemName() : null)}
     </span>
   )
 }
@@ -175,6 +176,7 @@ function TreeDragLine({ className, ...props }: React.HTMLAttributes<HTMLDivEleme
   const { tree } = useTreeContext()
 
   if (!tree || typeof tree.getDragLineStyle !== "function") {
+    // eslint-disable-next-line no-console
     console.warn(
       "TreeDragLine: No tree provided via context or tree does not have getDragLineStyle method"
     )
@@ -186,7 +188,7 @@ function TreeDragLine({ className, ...props }: React.HTMLAttributes<HTMLDivEleme
     <div
       style={dragLine}
       className={cn(
-        "bg-primary before:bg-background before:border-primary absolute z-30 -mt-px h-0.5 w-[unset] before:absolute before:-top-[3px] before:left-0 before:size-2 before:border-2",
+        "bg-primary before:bg-background before:border-primary absolute z-30 -mt-px h-0.5 w-[unset] before:absolute before:-top-0.75 before:left-0 before:size-2 before:border-2",
         "before:rounded-full",
         className
       )}

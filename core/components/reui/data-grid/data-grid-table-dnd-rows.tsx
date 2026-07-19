@@ -2,14 +2,14 @@
 
 import {
   createContext,
-  CSSProperties,
-  ReactNode,
   useContext,
   useEffect,
   useId,
   useMemo,
   useRef,
   useState,
+  type CSSProperties,
+  type ReactNode,
 } from "react"
 
 import {
@@ -18,18 +18,18 @@ import {
   KeyboardSensor,
   MouseSensor,
   TouchSensor,
-  UniqueIdentifier,
   useSensor,
   useSensors,
   type DragEndEvent,
   type Modifier,
+  type UniqueIdentifier,
 } from "@dnd-kit/core"
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers"
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { DragDropHorizontalIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { Cell, flexRender, HeaderGroup, Row } from "@tanstack/react-table"
+import { flexRender, type Cell, type HeaderGroup, type Row } from "@tanstack/react-table"
 
 import { useDataGrid } from "@/core/components/reui/data-grid/data-grid"
 import {
@@ -200,7 +200,7 @@ function DataGridTableDndRows<TData>({
     >
       <DataGridTableViewport
         viewportRef={tableContainerRef}
-        className={isDraggingRow ? "relative cursor-grabbing [&_*]:cursor-grabbing!" : "relative"}
+        className={isDraggingRow ? "relative cursor-grabbing **:cursor-grabbing!" : "relative"}
       >
         <DataGridTableBase>
           <DataGridTableHead>
@@ -231,7 +231,7 @@ function DataGridTableDndRows<TData>({
             })}
           </DataGridTableHead>
 
-          {(props.tableLayout?.stripped || !props.tableLayout?.rowBorder) && (
+          {(props.tableLayout?.stripped ?? !props.tableLayout?.rowBorder) && (
             <DataGridTableRowSpacer />
           )}
 

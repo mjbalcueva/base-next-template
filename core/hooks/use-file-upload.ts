@@ -367,8 +367,8 @@ export const useFileUpload = (
         ...props,
         type: "file" as const,
         onChange: handleFileChange,
-        accept: props.accept || accept,
-        multiple: props.multiple !== undefined ? props.multiple : multiple,
+        accept: props.accept ?? accept,
+        multiple: props.multiple ?? multiple,
         ref: inputRef,
       }
     },

@@ -1,11 +1,11 @@
 "use client"
 
-import { createContext, ReactNode, useContext, useId } from "react"
+import { createContext, useContext, useId, type ReactNode } from "react"
 
 import { NumberField as NumberFieldPrimitive } from "@base-ui/react/number-field"
 import { MinusSignIcon, PlusSignIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { cva, VariantProps } from "class-variance-authority"
+import { cva, type VariantProps } from "class-variance-authority"
 
 import { Label } from "@/core/components/ui/label"
 import { cn } from "@/core/lib/utils"

@@ -1,6 +1,6 @@
 "use client"
 
-import { HTMLAttributes, memo, ReactNode, useMemo } from "react"
+import { memo, useMemo, type HTMLAttributes, type ReactNode } from "react"
 
 import {
   ArrowDown02Icon,
@@ -15,7 +15,7 @@ import {
   UnfoldMoreIcon,
 } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { Column } from "@tanstack/react-table"
+import { type Column } from "@tanstack/react-table"
 
 import { getColumnHeaderLabel, useDataGrid } from "@/core/components/reui/data-grid/data-grid"
 import { Button } from "@/core/components/ui/button"
@@ -57,10 +57,6 @@ function DataGridColumnHeaderInner<TData, TValue>({
   const resolvedTitle = title ?? getColumnHeaderLabel(column)
 
   const columnOrder = table.getState().columnOrder
-  const columnVisibilityKey =
-    props.tableLayout?.columnsVisibility && visibility
-      ? JSON.stringify(table.getState().columnVisibility)
-      : ""
   const isSorted = column.getIsSorted()
   const isPinned = column.getIsPinned()
   const canSort = column.getCanSort()
@@ -117,9 +113,9 @@ function DataGridColumnHeaderInner<TData, TValue>({
     ))
 
   const hasControls =
-    props.tableLayout?.columnsMovable ||
-    (props.tableLayout?.columnsVisibility && visibility) ||
-    (props.tableLayout?.columnsPinnable && canPin) ||
+    props.tableLayout?.columnsMovable ??
+    (props.tableLayout?.columnsVisibility && visibility) ??
+    (props.tableLayout?.columnsPinnable && canPin) ??
     filter
 
   const menuItems = useMemo(() => {
@@ -318,7 +314,6 @@ function DataGridColumnHeaderInner<TData, TValue>({
     }
 
     return items
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     filter,
     canSort,
@@ -335,7 +330,6 @@ function DataGridColumnHeaderInner<TData, TValue>({
     table,
     columnIndex,
     columnOrder,
-    columnVisibilityKey, // Needed to update checkbox states when visibility changes
   ])
 
   if (hasControls) {
