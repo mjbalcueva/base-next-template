@@ -26,9 +26,9 @@ The project is organized into four layers. Each layer has a clear responsibility
 
 ```text
 app/              # Routes, layouts, page composition
-├── features/     # Product capabilities and business logic
-├── integrations/ # Third-party libraries, SDKs, infrastructure
-└── core/         # Generic reusable building blocks
+features/         # Product capabilities and business logic
+integrations/     # Third-party libraries, SDKs, infrastructure
+core/             # Generic reusable building blocks
 ```
 
 Features **may depend on other features**, but top-level feature dependencies must form a **directed acyclic graph (DAG)**.
